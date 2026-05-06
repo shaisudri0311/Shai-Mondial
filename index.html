@@ -733,6 +733,61 @@
     letter-spacing: .05em;
   }
 
+  /* ── SIMULATOR ───────────────────────────────────── */
+  #simulator { border-top: 1px solid rgba(255,255,255,.08); }
+
+  .sim-intro { font-size:.95rem; color:var(--mid); line-height:1.7; max-width:640px; margin-bottom:2rem; }
+
+  .sim-controls { display:flex; gap:1rem; flex-wrap:wrap; align-items:center; margin-bottom:2rem; }
+
+  .sim-run-btn {
+    font-family:'Bebas Neue',sans-serif; font-size:1.3rem; letter-spacing:.1em;
+    padding:.7rem 2.5rem; background:var(--red); color:var(--light); border:none; cursor:pointer;
+    transition:all .2s;
+  }
+  .sim-run-btn:hover { background:#e0152f; transform:translateY(-1px); }
+  .sim-run-btn.running { opacity:.6; pointer-events:none; }
+
+  .sim-count-label { font-family:'Barlow Condensed',sans-serif; font-size:.8rem; letter-spacing:.15em; text-transform:uppercase; color:var(--mid); }
+  .sim-count-label span { color:var(--gold); font-weight:700; }
+
+  .sim-podium { display:none; flex-direction:column; gap:1.5rem; margin-bottom:3rem; }
+  .sim-podium.show { display:flex; }
+
+  .winner-card {
+    border:1px solid var(--gold); padding:1.5rem 2rem; display:flex; align-items:center;
+    gap:1.5rem; background:rgba(232,178,58,.04); animation:fadeUp .5s ease forwards;
+  }
+  .winner-trophy { font-family:'Bebas Neue',sans-serif; font-size:3.5rem; line-height:1; color:var(--gold); min-width:50px; text-align:center; }
+  .winner-info h3 { font-family:'Bebas Neue',sans-serif; font-size:clamp(2rem,5vw,3rem); line-height:1; margin-bottom:.25rem; }
+  .winner-flag { font-size:2rem; margin-right:.4rem; }
+  .winner-prob { font-family:'Barlow Condensed',sans-serif; font-size:.82rem; letter-spacing:.12em; text-transform:uppercase; color:var(--mid); margin-top:.2rem; }
+  .winner-prob strong { color:var(--gold); }
+
+  .sim-bracket { display:none; }
+  .sim-bracket.show { display:block; }
+
+  .sim-round-block { margin-bottom:2rem; }
+  .sim-round-title { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; color:var(--gold); letter-spacing:.06em; margin-bottom:1rem; padding-bottom:.4rem; border-bottom:1px solid rgba(232,178,58,.2); }
+  .sim-matches-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:.6rem; }
+
+  .sim-match { border:1px solid rgba(255,255,255,.07); padding:.6rem .8rem; font-size:.8rem; }
+  .sim-team-row { display:flex; justify-content:space-between; align-items:center; padding:.2rem 0; }
+  .sim-team-row.top { border-bottom:1px solid rgba(255,255,255,.05); margin-bottom:.2rem; padding-bottom:.3rem; }
+  .sim-team-name { color:var(--light); }
+  .sim-team-name.w { color:var(--gold); font-weight:600; }
+  .sim-team-name.l { color:var(--mid); }
+  .sim-team-score { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; color:var(--mid); min-width:18px; text-align:right; }
+  .sim-team-score.w { color:var(--gold); }
+  .sim-note { font-size:.62rem; color:rgba(138,155,176,.4); text-align:right; margin-top:.1rem; font-family:'Barlow Condensed',sans-serif; }
+
+  .odds-bars { margin-top:1.5rem; }
+  .odds-bar-row { display:flex; align-items:center; gap:.75rem; margin-bottom:.55rem; }
+  .odds-bar-label { font-size:.78rem; width:120px; flex-shrink:0; color:var(--light); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .odds-bar-track { flex:1; height:5px; background:rgba(255,255,255,.07); border-radius:3px; overflow:hidden; }
+  .odds-bar-fill { height:100%; border-radius:3px; background:var(--red); transition:width .8s ease; width:0; }
+  .odds-bar-pct { font-family:'Barlow Condensed',sans-serif; font-size:.75rem; font-weight:700; color:var(--mid); min-width:36px; text-align:right; }
+
   /* ── ANIMATIONS ──────────────────────────────────── */
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(24px); }
@@ -800,6 +855,7 @@
     <li><a href="#format">Format</a></li>
     <li><a href="#scoreboard">Scores</a></li>
     <li><a href="#bracket">Bracket</a></li>
+    <li><a href="#simulator">Simulator</a></li>
     <li><a href="#final">Final</a></li>
   </ul>
 </nav>
@@ -1038,6 +1094,30 @@
   <div id="bracketSF" class="bracket-round"></div>
   <div id="bracketTP" class="bracket-round"></div>
   <div id="bracketF" class="bracket-round"></div>
+</section>
+
+<!-- SIMULATOR -->
+<section id="simulator">
+  <p class="section-label reveal">AI Prediction Engine</p>
+  <h2 class="reveal">Tournament Simulator</h2>
+  <p class="sim-intro reveal">Powered by real betting market odds (Spain +450, France +500, England +650, Brazil +850, Argentina +850 and all 48 teams). Each simulation runs the full tournament — group stage through final — using probability-weighted match results. Run it multiple times to see how variance plays out.</p>
+
+  <div class="sim-controls reveal">
+    <button class="sim-run-btn" id="simRunBtn" onclick="runSimulation()">▶ Run Simulation</button>
+    <span class="sim-count-label">Simulations run: <span id="simCount">0</span></span>
+  </div>
+
+  <div class="sim-podium" id="simPodium">
+    <div class="winner-card" id="simWinner"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;width:100%;" id="simRunner"></div>
+  </div>
+
+  <div class="sim-bracket" id="simBracket"></div>
+
+  <div id="simOddsWrap" style="display:none;margin-top:3rem;">
+    <p class="section-label">Win probability (based on market odds)</p>
+    <div class="odds-bars" id="simOddsBars"></div>
+  </div>
 </section>
 
 <!-- FINAL -->
@@ -1601,6 +1681,319 @@ Return ONLY the JSON array, nothing else.`;
 
 // Initial render of bracket
 renderAllKoRounds();
+
+// ── TOURNAMENT SIMULATOR ──────────────────────────────────────────────────────
+// Real betting odds sourced from ESPN, BetMGM, RotoWire, Polymarket (May 2026)
+// Converted to win probability weights for simulation
+const TEAM_STRENGTH = {
+  // Tier 1 — tournament favorites
+  'Spain':                 { prob: 18.2, flag: '🇪🇸' },
+  'France':                { prob: 16.8, flag: '🇫🇷' },
+  'England':               { prob: 13.3, flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
+  'Brazil':                { prob: 10.5, flag: '🇧🇷' },
+  'Argentina':             { prob: 10.5, flag: '🇦🇷' },
+  // Tier 2
+  'Portugal':              { prob: 8.3,  flag: '🇵🇹' },
+  'Germany':               { prob: 6.7,  flag: '🇩🇪' },
+  'Netherlands':           { prob: 4.8,  flag: '🇳🇱' },
+  // Tier 3
+  'Belgium':               { prob: 2.8,  flag: '🇧🇪' },
+  'Colombia':              { prob: 2.4,  flag: '🇨🇴' },
+  'Uruguay':               { prob: 2.0,  flag: '🇺🇾' },
+  'Croatia':               { prob: 2.0,  flag: '🇭🇷' },
+  'Morocco':               { prob: 1.8,  flag: '🇲🇦' },
+  'Switzerland':           { prob: 1.6,  flag: '🇨🇭' },
+  'Senegal':               { prob: 1.4,  flag: '🇸🇳' },
+  'Norway':                { prob: 1.2,  flag: '🇳🇴' },
+  // Tier 4
+  'Mexico':                { prob: 1.0,  flag: '🇲🇽' },
+  'Japan':                 { prob: 0.9,  flag: '🇯🇵' },
+  'USA':                   { prob: 0.9,  flag: '🇺🇸' },
+  'South Korea':           { prob: 0.8,  flag: '🇰🇷' },
+  'Ecuador':               { prob: 0.7,  flag: '🇪🇨' },
+  'Austria':               { prob: 0.7,  flag: '🇦🇹' },
+  'Sweden':                { prob: 0.6,  flag: '🇸🇪' },
+  'Canada':                { prob: 0.5,  flag: '🇨🇦' },
+  'Iran':                  { prob: 0.4,  flag: '🇮🇷' },
+  'Australia':             { prob: 0.4,  flag: '🇦🇺' },
+  'Türkiye':               { prob: 0.4,  flag: '🇹🇷' },
+  'Algeria':               { prob: 0.3,  flag: '🇩🇿' },
+  'Ivory Coast':           { prob: 0.3,  flag: '🇨🇮' },
+  'Czechia':               { prob: 0.3,  flag: '🇨🇿' },
+  'Scotland':              { prob: 0.2,  flag: '🏴󠁧󠁢󠁳󠁣󠁴󠁿' },
+  'Egypt':                 { prob: 0.2,  flag: '🇪🇬' },
+  'New Zealand':           { prob: 0.15, flag: '🇳🇿' },
+  'Ghana':                 { prob: 0.15, flag: '🇬🇭' },
+  'Panama':                { prob: 0.1,  flag: '🇵🇦' },
+  'Paraguay':              { prob: 0.1,  flag: '🇵🇾' },
+  'Saudi Arabia':          { prob: 0.1,  flag: '🇸🇦' },
+  'Tunisia':               { prob: 0.1,  flag: '🇹🇳' },
+  'Bosnia and Herzegovina':{ prob: 0.1,  flag: '🇧🇦' },
+  'DR Congo':              { prob: 0.08, flag: '🇨🇩' },
+  'Qatar':                 { prob: 0.08, flag: '🇶🇦' },
+  'Jordan':                { prob: 0.06, flag: '🇯🇴' },
+  'Uzbekistan':            { prob: 0.06, flag: '🇺🇿' },
+  'Iraq':                  { prob: 0.05, flag: '🇮🇶' },
+  'Cape Verde':            { prob: 0.05, flag: '🇨🇻' },
+  'South Africa':          { prob: 0.05, flag: '🇿🇦' },
+  'Curaçao':               { prob: 0.03, flag: '🇨🇼' },
+  'Haiti':                 { prob: 0.02, flag: '🇭🇹' },
+};
+
+function getStr(team) {
+  return (TEAM_STRENGTH[team] || { prob: 0.05 }).prob;
+}
+function getFlag(team) {
+  return (TEAM_STRENGTH[team] || { flag: '🏴' }).flag;
+}
+
+// Simulate a match: returns {winner, loser, homeGoals, awayGoals, method}
+function simMatch(home, away) {
+  const hs = getStr(home), as = getStr(away);
+  const total = hs + as;
+  const homeWinP = hs / total;
+  // Home advantage ~5%
+  const adjHome = Math.min(homeWinP + 0.05, 0.95);
+  const r = Math.random();
+  const winner = r < adjHome ? home : away;
+  const loser  = winner === home ? away : home;
+
+  // Generate scoreline
+  const avgGoals = 2.5;
+  const winnerGoals = Math.max(1, Math.round(Math.random() * 2 + 1));
+  const loserGoals  = Math.max(0, Math.round(Math.random() * 1.5));
+  const finalLoser  = Math.min(loserGoals, winnerGoals - 1);
+
+  let method = '';
+  const rnd = Math.random();
+  if (rnd < 0.08) method = 'pen';
+  else if (rnd < 0.18) method = 'aet';
+
+  return {
+    winner, loser,
+    homeGoals: winner === home ? winnerGoals : finalLoser,
+    awayGoals: winner === away ? winnerGoals : finalLoser,
+    method
+  };
+}
+
+// Simulate group stage — returns top 2 + group 3rd
+function simGroup(g) {
+  const teams = [...g.teams].map(t => ({ name: t, pts: 0, gd: 0, gs: 0 }));
+  const byName = {};
+  teams.forEach(t => byName[t.name] = t);
+
+  // Play all 6 matches (round-robin)
+  const pairs = [];
+  for (let i = 0; i < teams.length; i++)
+    for (let j = i+1; j < teams.length; j++)
+      pairs.push([teams[i].name, teams[j].name]);
+
+  pairs.forEach(([h, a]) => {
+    const r = simMatch(h, a);
+    byName[r.winner].pts += 3;
+    byName[r.winner].gd  += (r.homeGoals + r.awayGoals);
+    byName[r.loser].gd   -= (r.homeGoals + r.awayGoals - 2 * Math.min(r.homeGoals, r.awayGoals));
+    byName[r.winner].gs  += Math.max(r.homeGoals, r.awayGoals);
+    byName[r.loser].gs   += Math.min(r.homeGoals, r.awayGoals);
+  });
+
+  const sorted = [...teams].sort((a,b) => b.pts - a.pts || b.gd - a.gd || b.gs - a.gs);
+  return { first: sorted[0].name, second: sorted[1].name, third: sorted[2].name, thirdPts: sorted[2].pts, thirdGd: sorted[2].gd };
+}
+
+let simRunCount = 0;
+
+function runSimulation() {
+  const btn = document.getElementById('simRunBtn');
+  btn.classList.add('running');
+  btn.textContent = '⏳ Simulating…';
+
+  setTimeout(() => {
+    simRunCount++;
+    document.getElementById('simCount').textContent = simRunCount;
+
+    // ── GROUP STAGE ──
+    const groupResults = {};
+    const thirdPlacers = [];
+
+    GROUPS.forEach(g => {
+      const res = simGroup(g);
+      groupResults[g.id] = res;
+      thirdPlacers.push({ team: res.third, pts: res.thirdPts, gd: res.thirdGd, group: g.id });
+    });
+
+    // Best 8 third-place teams advance
+    thirdPlacers.sort((a,b) => b.pts - a.pts || b.gd - a.gd);
+    const advancingThirds = new Set(thirdPlacers.slice(0,8).map(t => t.team));
+
+    // ── ROUND OF 32 — simplified: 24 group qualifiers + 8 best thirds ──
+    // Build pool of 32 teams (12 winners + 12 runners-up + 8 best thirds)
+    const r32Pool = [];
+    GROUPS.forEach(g => {
+      r32Pool.push({ team: groupResults[g.id].first,  seed: 'W' });
+      r32Pool.push({ team: groupResults[g.id].second, seed: 'RU' });
+    });
+    thirdPlacers.slice(0,8).forEach(t => r32Pool.push({ team: t.team, seed: '3rd' }));
+
+    // Shuffle and pair 16 matches
+    for (let i = r32Pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [r32Pool[i], r32Pool[j]] = [r32Pool[j], r32Pool[i]];
+    }
+
+    const rounds = { r32: [], r16: [], qf: [], sf: [], tp: null, final: null };
+
+    // R32
+    const r32Winners = [];
+    for (let i = 0; i < r32Pool.length; i += 2) {
+      const h = r32Pool[i].team, a = r32Pool[i+1].team;
+      const res = simMatch(h, a);
+      rounds.r32.push({ home: h, away: a, homeGoals: res.homeGoals, awayGoals: res.awayGoals, winner: res.winner, method: res.method });
+      r32Winners.push(res.winner);
+    }
+
+    // R16
+    const r16Winners = [];
+    for (let i = 0; i < r32Winners.length; i += 2) {
+      const h = r32Winners[i], a = r32Winners[i+1];
+      const res = simMatch(h, a);
+      rounds.r16.push({ home: h, away: a, homeGoals: res.homeGoals, awayGoals: res.awayGoals, winner: res.winner, method: res.method });
+      r16Winners.push(res.winner);
+    }
+
+    // QF
+    const qfWinners = [], qfLosers = [];
+    for (let i = 0; i < r16Winners.length; i += 2) {
+      const h = r16Winners[i], a = r16Winners[i+1];
+      const res = simMatch(h, a);
+      rounds.qf.push({ home: h, away: a, homeGoals: res.homeGoals, awayGoals: res.awayGoals, winner: res.winner, method: res.method });
+      qfWinners.push(res.winner); qfLosers.push(res.loser);
+    }
+
+    // SF
+    const sfWinners = [], sfLosers = [];
+    for (let i = 0; i < qfWinners.length; i += 2) {
+      const h = qfWinners[i], a = qfWinners[i+1];
+      const res = simMatch(h, a);
+      rounds.sf.push({ home: h, away: a, homeGoals: res.homeGoals, awayGoals: res.awayGoals, winner: res.winner, method: res.method });
+      sfWinners.push(res.winner); sfLosers.push(res.loser);
+    }
+
+    // 3rd place
+    const tpRes = simMatch(sfLosers[0], sfLosers[1]);
+    rounds.tp = { home: sfLosers[0], away: sfLosers[1], homeGoals: tpRes.homeGoals, awayGoals: tpRes.awayGoals, winner: tpRes.winner, method: tpRes.method };
+
+    // Final
+    const finRes = simMatch(sfWinners[0], sfWinners[1]);
+    rounds.final = { home: sfWinners[0], away: sfWinners[1], homeGoals: finRes.homeGoals, awayGoals: finRes.awayGoals, winner: finRes.winner, loser: finRes.loser, method: finRes.method };
+
+    renderSimResults(rounds, groupResults);
+
+    btn.classList.remove('running');
+    btn.textContent = '▶ Run Again';
+  }, 400);
+}
+
+function methodBadge(m) {
+  if (m === 'pen') return ' <span style="font-size:.6rem;color:var(--mid);">(pens)</span>';
+  if (m === 'aet') return ' <span style="font-size:.6rem;color:var(--mid);">(aet)</span>';
+  return '';
+}
+
+function renderSimMatch(m) {
+  const hw = m.winner === m.home;
+  return `<div class="sim-match">
+    <div class="sim-team-row top">
+      <span class="sim-team-name ${hw?'w':'l'}">${getFlag(m.home)} ${m.home}</span>
+      <span class="sim-team-score ${hw?'w':''}">${m.homeGoals}</span>
+    </div>
+    <div class="sim-team-row">
+      <span class="sim-team-name ${!hw?'w':'l'}">${getFlag(m.away)} ${m.away}</span>
+      <span class="sim-team-score ${!hw?'w':''}">${m.awayGoals}</span>
+    </div>
+    ${m.method ? `<div class="sim-note">${m.method === 'pen' ? 'Penalties' : 'AET'}</div>` : ''}
+  </div>`;
+}
+
+function renderSimResults(rounds, groupResults) {
+  const champion  = rounds.final.winner;
+  const runnerUp  = rounds.final.loser;
+  const third     = rounds.tp.winner;
+  const fourth    = rounds.tp.loser;
+
+  // Podium
+  const podium = document.getElementById('simPodium');
+  document.getElementById('simWinner').innerHTML = `
+    <div class="winner-trophy">🏆</div>
+    <div class="winner-info">
+      <h3><span class="winner-flag">${getFlag(champion)}</span>${champion}</h3>
+      <div class="winner-prob">World Cup Champion · <strong>${(getStr(champion)).toFixed(1)}% market probability</strong></div>
+      <div class="winner-prob" style="margin-top:.2rem;color:var(--mid);font-size:.72rem;">Final: ${champion} ${rounds.final.homeGoals > rounds.final.awayGoals ? rounds.final.homeGoals + '–' + rounds.final.awayGoals : rounds.final.awayGoals + '–' + rounds.final.homeGoals} ${runnerUp}${methodBadge(rounds.final.method)}</div>
+    </div>`;
+
+  document.getElementById('simRunner').innerHTML = `
+    <div style="border:1px solid rgba(255,255,255,.12);padding:1rem 1.2rem;background:rgba(255,255,255,.02);">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mid);margin-bottom:.4rem;">🥈 Runner-up</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;">${getFlag(runnerUp)} ${runnerUp}</div>
+    </div>
+    <div style="border:1px solid rgba(255,255,255,.12);padding:1rem 1.2rem;background:rgba(255,255,255,.02);">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mid);margin-bottom:.4rem;">🥉 Third Place</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;">${getFlag(third)} ${third}</div>
+    </div>`;
+
+  podium.classList.add('show');
+
+  // Full bracket
+  const bracket = document.getElementById('simBracket');
+  const roundDefs = [
+    { key: 'r32', label: 'Round of 32', matches: rounds.r32 },
+    { key: 'r16', label: 'Round of 16', matches: rounds.r16 },
+    { key: 'qf',  label: 'Quarterfinals', matches: rounds.qf },
+    { key: 'sf',  label: 'Semifinals', matches: rounds.sf },
+    { key: 'tp',  label: '3rd Place Play-off', matches: [rounds.tp] },
+    { key: 'f',   label: '⭐ Final', matches: [rounds.final] },
+  ];
+
+  bracket.innerHTML = roundDefs.map(rd => `
+    <div class="sim-round-block">
+      <div class="sim-round-title">${rd.label}</div>
+      <div class="sim-matches-row">${rd.matches.map(renderSimMatch).join('')}</div>
+    </div>`).join('');
+
+  bracket.classList.add('show');
+
+  // Odds bar chart (top 12)
+  const sorted = Object.entries(TEAM_STRENGTH).sort((a,b) => b[1].prob - a[1].prob).slice(0,12);
+  const maxP = sorted[0][1].prob;
+  document.getElementById('simOddsBars').innerHTML = sorted.map(([team, d]) => `
+    <div class="odds-bar-row">
+      <span class="odds-bar-label">${d.flag} ${team}</span>
+      <div class="odds-bar-track"><div class="odds-bar-fill" style="width:${(d.prob/maxP*100).toFixed(1)}%;background:${team===champion?'var(--gold)':'var(--red)'}"></div></div>
+      <span class="odds-bar-pct">${d.prob.toFixed(1)}%</span>
+    </div>`).join('');
+
+  document.getElementById('simOddsWrap').style.display = 'block';
+
+  // Trigger bar animations
+  setTimeout(() => {
+    document.querySelectorAll('.odds-bar-fill').forEach(b => b.style.width = b.style.width);
+  }, 50);
+}
+
+// Show odds bars on load (without running sim)
+(function initOddsBars() {
+  const sorted = Object.entries(TEAM_STRENGTH).sort((a,b) => b[1].prob - a[1].prob).slice(0,12);
+  const maxP = sorted[0][1].prob;
+  document.getElementById('simOddsBars').innerHTML = sorted.map(([team, d]) => `
+    <div class="odds-bar-row">
+      <span class="odds-bar-label">${d.flag} ${team}</span>
+      <div class="odds-bar-track"><div class="odds-bar-fill" style="width:${(d.prob/maxP*100).toFixed(1)}%"></div></div>
+      <span class="odds-bar-pct">${d.prob.toFixed(1)}%</span>
+    </div>`).join('');
+  document.getElementById('simOddsWrap').style.display = 'block';
+})();
+
 </script>
 
 </body>
